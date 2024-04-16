@@ -110,5 +110,33 @@ Curso.destroy({
     res.status(204).json({})
 })
 
+routes.put('/cursos/:id', async (req, res) => {
+    const id = req.params.id
+    const {nome, duracao_horas} = req.body
+
+    if(!nome) {
+        return res.status(400).json({mensagem: 'nome é obrigatório'})
+    }
+
+    if (!(duracao_horas >= 40 && duracao_horas <= 200)) {
+        return res.status(400).json({ mensagem: 'A duração do curso deve ser entre 40 e 200 horas'})
+    }
+
+    try{
+        await Curso.update(
+            {nome, duracao_horas},
+            {where: {id}}
+        )
+        
+        const cursoAtualizado = await Curso.findByPk(id)
+
+        res.status(200).json(cursoAtualizado)
+
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({error: 'Não foi possível atualizar  curso'})
+    }
+})
+
 module.exports = routes
 
