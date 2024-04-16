@@ -98,16 +98,30 @@ routes.get('/cursos', async (req, res) => {
 
 })
 
-routes.delete('/cursos/:id', (req, res) => {
+routes.delete('/cursos/:id', async (req, res) => {
     const id = req.params.id
 
-Curso.destroy({
+    try {
+
+        const curso = await Curso.findByPk(id)
+
+        if (!curso) {
+            return res.status(404).json({ error: 'Curso não encontrado'})
+        } 
+
+    await Curso.destroy({
     where:{
-        id:id
+        id: id
     }
 })
 
     res.status(204).json({})
+
+} catch (error) {
+    console.log(error.message)
+
+    res.status(500).json({error: 'Não foi possível excluir o curso'})
+}
 })
 
 routes.put('/cursos/:id', async (req, res) => {
