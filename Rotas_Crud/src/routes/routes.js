@@ -1,6 +1,7 @@
 const { Router } = require('express') // 
 const Aluno = require('../models/Aluno')
 const Curso = require('../models/Curso')
+const Professor = require('../models/Professor')
 
 const routes = new Router()
 
@@ -149,6 +150,57 @@ routes.put('/cursos/:id', async (req, res) => {
     } catch (error) {
         console.log(error.message)
         res.status(500).json({error: 'Não foi possível atualizar  curso'})
+    }
+})
+
+routes.get('/professores', async (req, res) => {
+    try {
+        const professores = await Professor.findAll();
+        res.json(professores);
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({ error: 'Erro ao buscar os professores'})
+    }
+})
+
+routes.post('/professores', async (req, res) => {
+    const {nome, disciplina} = req.body
+    try {
+        const novoProfessor = await Professor.create({nome, disciplina})
+        res.status(201).json(novoProfessor)
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({error: 'Erro ao adicionar o professor'})
+    }
+})
+
+routes.delete ('/professores/:id', async (req, res) => {
+    const id = req.params.id
+    try {
+        await Professor.destroy({where: {id}})
+        res.status(204).json({})
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({error: 'Erro ao deletar o professor'})
+    }
+})
+
+routes.put('/professores/:id', async (req, res) => {
+    const id = req.params.id 
+    const {nome, disciplina} = req.body
+    try {
+        const professor = await Professor.findByPk(id)
+        if (!professor) {
+            return res.status(404).json({error: 'Professor não encontrado'})
+        }
+
+        await Professor.update({nome, disciplina}, {where: {id}})
+        const professorAtualizado = await Professor.findByPk(id)
+        
+        res.json(professorAtualizado)
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({error: 'Erro ao atualizar o professor'})
     }
 })
 
